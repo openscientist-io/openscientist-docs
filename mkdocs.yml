@@ -5,6 +5,8 @@ repo_name: openscientist-io/openscientist
 edit_uri: ""
 theme:
   name: material
+  logo: assets/logo.svg
+  favicon: assets/favicon-32.png
   features:
     - navigation.sections
     - navigation.top
