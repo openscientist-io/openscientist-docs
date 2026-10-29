@@ -1,3 +1,3 @@
 # airgap
 
-_To be populated from the main repo and Evan's MkDocs first pass._
+_To be populated from the main repo and the prior MkDocs first pass._

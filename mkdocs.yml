@@ -1,10 +1,14 @@
 site_name: OpenScientist
+site_description: Deployment, operations, and architecture docs for OpenScientist, an open-source agentic AI co-scientist for biomedical data analysis.
 site_url: https://docs.openscientist.io/
 repo_url: https://github.com/openscientist-io/openscientist
 repo_name: openscientist-io/openscientist
 edit_uri: ""
+copyright: Copyright &copy; 2026
 theme:
   name: material
+  logo: assets/logo.svg
+  favicon: assets/favicon.png
   features:
     - navigation.sections
     - navigation.top
