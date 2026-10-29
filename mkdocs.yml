@@ -33,5 +33,6 @@ nav:
   - Getting started: getting-started.md
   - Deployment: deployment.md
   - Air-gapped mode: airgap.md
+  - REST API: api.md
   - Architecture: architecture.md
   - Contributing: contributing.md
