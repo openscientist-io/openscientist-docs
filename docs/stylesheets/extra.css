@@ -39,9 +39,10 @@
 }
 
 /* Logo inside a white circle, like the app's brand mark. */
+/* Disc at 16px from the edge with an 8px gap to the title, as in the app header. */
 .md-header__button.md-logo {
   padding: 0;
-  margin: 0.4rem 0.6rem 0.4rem 0.2rem;
+  margin: 0 0 0 8px;
 }
 .md-header__button.md-logo img,
 .md-header__button.md-logo svg {
@@ -66,6 +67,7 @@
 }
 .md-header__title {
   margin-left: 8px;
+  margin-right: 0;
 }
 
 /* Tabs bar (if enabled later) and search box inherit the same blue. */
