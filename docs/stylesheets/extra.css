@@ -1,0 +1,50 @@
+/* Match the OpenScientist app header (NiceGUI/Quasar default blue, white logo disc, bold title). */
+:root,
+[data-md-color-scheme="default"],
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #5898d4;
+  --md-primary-fg-color--light: #7db0e0;
+  --md-primary-fg-color--dark: #3f7fc0;
+  --md-primary-bg-color: #ffffff;
+  --md-accent-fg-color: #0891b2;
+}
+
+.md-header {
+  background-color: #5898d4;
+  box-shadow: none;
+}
+
+.md-header__inner {
+  min-height: 72px;
+}
+
+/* Logo inside a white circle, like the app's brand mark. */
+.md-header__button.md-logo {
+  padding: 0;
+  margin: 0.4rem 0.6rem 0.4rem 0.2rem;
+}
+.md-header__button.md-logo img,
+.md-header__button.md-logo svg {
+  width: 40px;
+  height: 40px;
+  padding: 4px;
+  box-sizing: border-box;
+  background: #ffffff;
+  border-radius: 9999px;
+}
+
+/* "OpenScientist" title: bold, 24px, white, no "topic" subtitle swap. */
+.md-header__title {
+  font-weight: 700;
+  font-size: 1.5rem;
+  line-height: 2rem;
+  color: #ffffff;
+}
+.md-header__ellipsis {
+  color: #ffffff;
+}
+
+/* Tabs bar (if enabled later) and search box inherit the same blue. */
+.md-tabs {
+  background-color: #5898d4;
+}

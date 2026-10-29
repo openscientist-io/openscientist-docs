@@ -16,10 +16,10 @@ theme:
     - content.code.copy
   palette:
     - scheme: default
-      primary: teal
+      primary: custom
       toggle: { icon: material/brightness-7, name: Dark mode }
     - scheme: slate
-      primary: teal
+      primary: custom
       toggle: { icon: material/brightness-4, name: Light mode }
 markdown_extensions:
   - admonition
@@ -36,3 +36,5 @@ nav:
   - REST API: api.md
   - Architecture: architecture.md
   - Contributing: contributing.md
+extra_css:
+  - stylesheets/extra.css
