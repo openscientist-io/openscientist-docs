@@ -11,7 +11,25 @@
 
 .md-header {
   background-color: #5898d4;
+  color: #ffffff;
   box-shadow: none;
+}
+
+/* Search field and repo link read white on the blue banner. */
+.md-search__form {
+  background-color: rgba(255, 255, 255, 0.18);
+}
+.md-search__input,
+.md-search__input::placeholder,
+.md-search__icon,
+.md-source,
+.md-source__repository,
+.md-source__facts {
+  color: #ffffff;
+}
+.md-search__input::placeholder,
+.md-search__icon {
+  opacity: 0.9;
 }
 
 .md-header__inner {
