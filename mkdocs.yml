@@ -8,7 +8,7 @@ copyright: Copyright &copy; 2026
 theme:
   name: material
   logo: assets/logo.svg
-  favicon: assets/favicon.png
+  favicon: assets/favicon-32.png
   features:
     - navigation.sections
     - navigation.top
