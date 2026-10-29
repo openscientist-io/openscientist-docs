@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap");
+
 /* Match the OpenScientist app header (NiceGUI/Quasar default blue, white logo disc, bold title). */
 :root,
 [data-md-color-scheme="default"],
@@ -51,15 +53,19 @@
   border-radius: 9999px;
 }
 
-/* "OpenScientist" title: bold, 24px, white, no "topic" subtitle swap. */
-.md-header__title {
+/* "OpenScientist" title: same as the app brand (Roboto 700, 24px/32px, white). */
+.md-header__title,
+.md-header__title .md-header__ellipsis,
+.md-header__title .md-header__topic,
+.md-header__title .md-ellipsis {
+  font-family: Roboto, -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 700;
-  font-size: 1.5rem;
-  line-height: 2rem;
+  font-size: 24px;
+  line-height: 32px;
   color: #ffffff;
 }
-.md-header__ellipsis {
-  color: #ffffff;
+.md-header__title {
+  margin-left: 8px;
 }
 
 /* Tabs bar (if enabled later) and search box inherit the same blue. */
