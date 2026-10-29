@@ -4,7 +4,6 @@ site_url: https://docs.openscientist.io/
 repo_url: https://github.com/openscientist-io/openscientist
 repo_name: openscientist-io/openscientist
 edit_uri: ""
-copyright: Copyright &copy; 2026
 theme:
   name: material
   logo: assets/logo.svg
