@@ -2,7 +2,7 @@
 
 Source for https://docs.openscientist.io. Built with Zensical (the Material-for-MkDocs successor; it reads the standard `mkdocs.yml`, so `mkdocs build` still works too) and deployed by GitHub Actions to GitHub Pages on every push to `main`.
 
-Local preview: `pip install -r requirements.txt && zensical serve`
+Local preview: `uv sync && uv run zensical serve` (dependencies are pinned in `uv.lock`; `uv lock --upgrade` to bump Zensical)
 
 Setup checklist (one-time, in this order; from GitHub's docs, verified 2026-10-29). Status 2026-10-29: steps 1, 2 and 4 done; 3, 5, 6, 7 pending DNS access.
 

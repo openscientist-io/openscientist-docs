@@ -1,0 +1,9 @@
+[project]
+name = "openscientist-docs"
+version = "0.1.0"
+description = "Source for docs.openscientist.io"
+requires-python = ">=3.12"
+dependencies = ["zensical"]
+
+[tool.uv]
+package = false
