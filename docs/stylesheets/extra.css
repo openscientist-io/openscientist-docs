@@ -66,3 +66,15 @@
 .md-tabs {
   background-color: #5898d4;
 }
+
+/* Full-width layout, like the app: brand flush left, nav sidebar at the left edge.
+   Article text keeps a readable measure. */
+.md-grid {
+  max-width: none;
+}
+.md-header__inner {
+  padding: 0 16px 0 8px;
+}
+.md-content__inner {
+  max-width: 52rem;
+}
