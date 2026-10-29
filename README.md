@@ -4,7 +4,7 @@ Source for https://docs.openscientist.io. Built with Zensical (the Material-for-
 
 Local preview: `uv sync && uv run zensical serve` (dependencies are pinned in `uv.lock`; `uv lock --upgrade` to bump Zensical)
 
-Setup checklist (one-time, in this order; from GitHub's docs, verified 2026-10-29). Status 2026-10-29: steps 1, 2 and 4 done; 3, 5, 6, 7 pending DNS access.
+Setup checklist (one-time, in this order; from GitHub's docs, verified 2026-10-29). Status 2026-10-29: steps 1, 2, 4, 5 and 6 done (CNAME added in Route 53, hosted zone Z10166663OZ8U0M4F0H68 in the Monarch AWS account 440333305415); 7 pending certificate issuance; 3 (org-level verification) still to do.
 
 1. Create the org repo `openscientist-io/openscientist-docs`, push `main`.
 2. Repo Settings > Pages > Build and deployment > Source = **GitHub Actions**. The first workflow run deploys to `openscientist-io.github.io/openscientist-docs`.
