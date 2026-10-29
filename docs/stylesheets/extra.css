@@ -69,6 +69,10 @@
   margin-left: 8px;
   margin-right: 0;
 }
+/* Vertically centre the 32px title line in the 48px title box (theme pins it to the top). */
+.md-header__title .md-header__topic {
+  top: 8px;
+}
 
 /* Tabs bar (if enabled later) and search box inherit the same blue. */
 .md-tabs {
