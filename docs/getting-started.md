@@ -1,7 +1,9 @@
 # Getting started
 
-This covers running OpenScientist as a Docker-based application. If you want to
-work on OpenScientist's own code instead, see [Contributing](contributing.md).
+There are two ways to use OpenScientist:
+
+1. **Run jobs on our live instance** at [www.openscientist.io](https://www.openscientist.io). Sign in, wait for an administrator to approve your account, and start a job. Nothing to install.
+2. **Install your own instance** from the [GitHub repository](https://github.com/openscientist-io/openscientist), as described below.
 
 ## Prerequisites
 
@@ -20,7 +22,7 @@ See [Configuration](#configuration) below for how to set up each provider.
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/openscientist-io/openscientist.git
 cd openscientist
 
 # Create .env file (copy from example and configure)
