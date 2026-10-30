@@ -70,9 +70,10 @@
   margin-left: 8px;
   margin-right: 0;
 }
-/* Vertically centre the 32px title line in the 48px title box (theme pins it to the top). */
+/* Vertically place the title so its glyphs sit where the app's do (text top 21.5px in a
+   72px header); the theme pins the title to the top of its 48px box. */
 .md-header__title .md-header__topic {
-  top: 8px;
+  top: 10.4px;
 }
 
 /* Tabs bar (if enabled later) and search box inherit the same blue. */
