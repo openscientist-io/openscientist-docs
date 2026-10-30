@@ -173,12 +173,18 @@ Skills are modular packages of domain expertise that guide the agent's reasoning
 
 **Domain Skills** (domain-specific):
 
+- `genomics` - Differential expression, single-cell and enrichment analysis
 - `metabolomics` - Pathway analysis, flux calculations
-- `genomics` - Differential expression, enrichment analysis
-- `structural-biology` - Structure validation, AlphaFold interpretation
 - `data-science` - General statistical analysis
+- `phenix-tools-reference` - Structural biology with the Phenix suite
+- `berkeley-data-lakehouse` - Querying JGI and KBase data
 
-Community-contributed domain skills are being developed in the [open-science-skills](https://github.com/justaddcoffee/open-science-skills) repository. Pluggable skill installation is planned for a future release.
+Skills come from two sources, configured as *skill sources* and synced into the database:
+
+- **OpenScientist built-in skills**: the workflow and domain skills above, in the [`skills/`](https://github.com/openscientist-io/openscientist/tree/main/skills) directory of the main repository.
+- **Scientific Agent Skills** from K-Dense: a large community library of scientific skills, [K-Dense-AI/scientific-agent-skills](https://github.com/K-Dense-AI/scientific-agent-skills).
+
+Administrators can add further Git repositories as skill sources through the Skills page or the [REST API](api.md) (`POST /skills/sources`).
 
 ### MCP Tools
 
@@ -245,7 +251,6 @@ production deployment details.
 
 ## Future Directions
 
-- **Pluggable skills**: Install community-contributed domain skills from open-science-skills
 - **Alternative agents**: Support for other agentic frameworks beyond Claude Code
 - **Swarm mode**: Multiple specialized agents working in parallel
 - **Interactive steering**: Real-time guidance during autonomous runs
@@ -258,4 +263,5 @@ production deployment details.
 ## References
 
 - [Model Context Protocol (MCP)](https://modelcontextprotocol.io/)
-- [open-science-skills Repository](https://github.com/justaddcoffee/open-science-skills)
+- [OpenScientist built-in skills](https://github.com/openscientist-io/openscientist/tree/main/skills)
+- [K-Dense Scientific Agent Skills](https://github.com/K-Dense-AI/scientific-agent-skills)
