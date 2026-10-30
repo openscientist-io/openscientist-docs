@@ -3,7 +3,7 @@
 There are two ways to use OpenScientist:
 
 1. **Run jobs on our live instance** at [www.openscientist.io](https://www.openscientist.io). Sign in, wait for an administrator to approve your account, and start a job. Nothing to install.
-2. **Install your own instance** from the [GitHub repository](https://github.com/openscientist-io/openscientist), as described below.
+2. **Install your own instance on premises** from the [GitHub repository](https://github.com/openscientist-io/openscientist), as described below.
 
 ## Prerequisites
 
@@ -11,10 +11,11 @@ There are two ways to use OpenScientist:
 - Docker (for containerized deployment)
 - `uv` package manager
 - One of the following for model access:
-  - **CBORG**: API token from [CBORG](https://cborg.lbl.gov)
   - **Vertex AI**: GCP project with Vertex AI enabled
   - **AWS Bedrock**: AWS account with Bedrock access
   - **Azure AI Foundry**: Azure subscription with Foundry resource
+  - **Local models**: an Ollama, vLLM or llama.cpp server on your own hardware
+  - **CBORG** (LBNL staff only): API token from [CBORG](https://cborg.lbl.gov)
 
 See [Configuration](#configuration) below for how to set up each provider.
 
@@ -52,20 +53,7 @@ Open your browser to `http://localhost:8080`.
 
 OpenScientist supports multiple model providers. Choose one and configure it in your `.env` file:
 
-#### Option 1: CBORG (Lawrence Berkeley National Lab)
-
-```bash
-# Provider selection
-OPENSCIENTIST_PROVIDER=cborg
-
-# CBORG credentials
-ANTHROPIC_AUTH_TOKEN=your-cborg-token
-ANTHROPIC_BASE_URL=https://api.cborg.lbl.gov
-```
-
-**Cost Tracking**: Real-time via CBORG API (`/key/info`, `/user/daily/activity`)
-
-#### Option 2: Google Vertex AI
+#### Option 1: Google Vertex AI
 
 ```bash
 # Provider selection
@@ -84,7 +72,7 @@ GCP_BILLING_ACCOUNT_ID=XXXXXX-YYYYYY-ZZZZZZ
 
 **Cost Tracking**: Via GCP BigQuery billing export (1-6 hour lag)
 
-#### Option 3: AWS Bedrock
+#### Option 2: AWS Bedrock
 
 ```bash
 # Provider selection
@@ -109,7 +97,7 @@ AWS_SECRET_ACCESS_KEY=your-secret-access-key
 
 **Note**: Requires IAM permissions for `bedrock:InvokeModel` and `ce:GetCostAndUsage`
 
-#### Option 4: Azure AI Foundry (Microsoft Foundry)
+#### Option 3: Azure AI Foundry (Microsoft Foundry)
 
 ```bash
 # Provider selection
@@ -142,6 +130,64 @@ AZURE_SUBSCRIPTION_ID=your-subscription-id
 **Setup Guide**: See [Claude Code Foundry docs](https://code.claude.com/docs/en/microsoft-foundry)
 
 **Note**: Requires Azure RBAC permissions (`Azure AI User` or `Cognitive Services User` role)
+
+#### Option 4: Local models (Ollama, vLLM, llama.cpp)
+
+Open-weight models can run on your own hardware and be served to OpenScientist over an OpenAI-compatible endpoint. Three local servers are supported; all are driven by the omp agent harness. Pick one and point OpenScientist at it:
+
+=== "Ollama"
+
+    ```bash
+    OPENSCIENTIST_PROVIDER=ollama
+    OLLAMA_BASE_URL=http://host.docker.internal:11434/v1
+    # Optional; defaults to gpt-oss:20b
+    OPENSCIENTIST_MODEL=gpt-oss:20b
+    # Set to the num_ctx Ollama runs with (it cannot report this before the model is loaded)
+    OPENSCIENTIST_MODEL_CONTEXT_TOKENS=32768
+    ```
+
+=== "vLLM"
+
+    ```bash
+    OPENSCIENTIST_PROVIDER=vllm
+    VLLM_BASE_URL=http://host.docker.internal:8000/v1
+    # Required: the model name vLLM was launched with
+    OPENSCIENTIST_MODEL=your-served-model
+    # Only if vLLM was started with --api-key
+    # VLLM_API_KEY=...
+    ```
+
+=== "llama.cpp"
+
+    ```bash
+    OPENSCIENTIST_PROVIDER=llamacpp
+    # llama-server defaults to port 8080, which OpenScientist also uses; start it with --port 8081
+    LLAMACPP_BASE_URL=http://host.docker.internal:8081/v1
+    # Required: the model name llama-server serves
+    OPENSCIENTIST_MODEL=your-served-model
+    # Only if llama-server was started with --api-key
+    # LLAMACPP_API_KEY=...
+    # The context window is read from llama-server's /props automatically
+    ```
+
+Use `host.docker.internal` (as above) when the model server runs on the same machine as OpenScientist, because agents run inside containers; use `localhost` only when running OpenScientist from source outside Docker. No API key or internet access is required, which makes local models the natural choice for [air-gapped mode](airgap.md).
+
+**Cost Tracking**: None needed; inference runs on your own hardware.
+
+#### Option 5: CBORG (Lawrence Berkeley National Lab)
+
+Only relevant inside Lawrence Berkeley National Laboratory, which runs CBORG as an internal model gateway.
+
+```bash
+# Provider selection
+OPENSCIENTIST_PROVIDER=cborg
+
+# CBORG credentials
+ANTHROPIC_AUTH_TOKEN=your-cborg-token
+ANTHROPIC_BASE_URL=https://api.cborg.lbl.gov
+```
+
+**Cost Tracking**: Real-time via CBORG API (`/key/info`, `/user/daily/activity`)
 
 ### Budget Controls
 
