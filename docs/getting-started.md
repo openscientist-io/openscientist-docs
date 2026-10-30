@@ -11,6 +11,9 @@ There are two ways to use OpenScientist:
 - Docker (for containerized deployment)
 - `uv` package manager
 - One of the following for model access:
+  - **Anthropic API**: an API key or a Claude subscription
+  - **OpenAI**: an API key or a ChatGPT login
+  - **Azure OpenAI**: an Azure OpenAI resource with a model deployment
   - **Vertex AI**: GCP project with Vertex AI enabled
   - **AWS Bedrock**: AWS account with Bedrock access
   - **Azure AI Foundry**: Azure subscription with Foundry resource
@@ -53,7 +56,51 @@ Open your browser to `http://localhost:8080`.
 
 OpenScientist supports multiple model providers. Choose one and configure it in your `.env` file:
 
-#### Option 1: Google Vertex AI
+#### Option 1: Anthropic API
+
+```bash
+OPENSCIENTIST_PROVIDER=anthropic
+
+# Option A: API key from https://console.anthropic.com
+ANTHROPIC_API_KEY=sk-ant-api03-your-key-here
+
+# Option B: a Claude subscription login (run `claude setup-token`)
+# CLAUDE_CODE_OAUTH_TOKEN=...
+```
+
+The simplest setup: one key, no cloud account. Runs on the Claude Code agent harness.
+
+#### Option 2: OpenAI
+
+```bash
+OPENSCIENTIST_PROVIDER=openai
+
+# Option A: API key
+OPENAI_API_KEY=sk-your-openai-key
+
+# Option B: a ChatGPT login (from `codex login`)
+# CODEX_AUTH_FILE=/home/you/.codex/auth.json
+```
+
+Runs on the Codex agent harness.
+
+#### Option 3: Azure OpenAI
+
+```bash
+OPENSCIENTIST_PROVIDER=azure-openai
+# Required: your Azure deployment name
+OPENSCIENTIST_MODEL=your-deployment-name
+
+AZURE_OPENAI_API_KEY=your-azure-openai-key
+# The <resource> in https://<resource>.openai.azure.com
+AZURE_OPENAI_RESOURCE=your-resource
+# Optional; defaults to 2025-04-01-preview
+# AZURE_OPENAI_API_VERSION=2025-04-01-preview
+```
+
+OpenAI models through your Azure subscription, on the Codex agent harness.
+
+#### Option 4: Google Vertex AI
 
 ```bash
 # Provider selection
@@ -72,7 +119,7 @@ GCP_BILLING_ACCOUNT_ID=XXXXXX-YYYYYY-ZZZZZZ
 
 **Cost Tracking**: Via GCP BigQuery billing export (1-6 hour lag)
 
-#### Option 2: AWS Bedrock
+#### Option 5: AWS Bedrock
 
 ```bash
 # Provider selection
@@ -97,7 +144,7 @@ AWS_SECRET_ACCESS_KEY=your-secret-access-key
 
 **Note**: Requires IAM permissions for `bedrock:InvokeModel` and `ce:GetCostAndUsage`
 
-#### Option 3: Azure AI Foundry (Microsoft Foundry)
+#### Option 6: Azure AI Foundry (Microsoft Foundry)
 
 ```bash
 # Provider selection
@@ -131,7 +178,7 @@ AZURE_SUBSCRIPTION_ID=your-subscription-id
 
 **Note**: Requires Azure RBAC permissions (`Azure AI User` or `Cognitive Services User` role)
 
-#### Option 4: Local models (Ollama, vLLM, llama.cpp)
+#### Option 7: Local models (Ollama, vLLM, llama.cpp)
 
 Open-weight models can run on your own hardware and be served to OpenScientist over an OpenAI-compatible endpoint. Three local servers are supported; all are driven by the omp agent harness. Pick one and point OpenScientist at it:
 
@@ -174,7 +221,7 @@ Use `host.docker.internal` (as above) when the model server runs on the same mac
 
 **Cost Tracking**: None needed; inference runs on your own hardware.
 
-#### Option 5: CBORG (Lawrence Berkeley National Lab)
+#### Option 8: CBORG (Lawrence Berkeley National Lab)
 
 Only relevant inside Lawrence Berkeley National Laboratory, which runs CBORG as an internal model gateway.
 
