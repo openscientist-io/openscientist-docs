@@ -70,10 +70,10 @@
   margin-left: 8px;
   margin-right: 0;
 }
-/* Vertically place the title so its glyphs sit where the app's do (text top 21.5px in a
-   72px header); the theme pins the title to the top of its 48px box. */
+/* Vertically place the title so its rendered glyphs sit where the app's do (matched by
+   pixel measurement); the theme pins the title to the top of its 48px box. */
 .md-header__title .md-header__topic {
-  top: 10.4px;
+  top: 7.9px;
 }
 
 /* Tabs bar (if enabled later) and search box inherit the same blue. */
