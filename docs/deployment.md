@@ -162,7 +162,7 @@ Check spend on the admin **Billing** page, and raise or clear the limits in the 
 
 3. Cancel the job through the [REST API](api.md):
    ```bash
-   curl -X POST -H "Authorization: Bearer $OPENSCIENTIST_API_KEY" \
+   curl -X POST -H "Authorization: Bearer $OS_KEY" \
      http://localhost:8080/api/v1/jobs/<job_id>/cancel
    ```
 
