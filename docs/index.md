@@ -3,5 +3,5 @@
 OpenScientist is an open-source agentic AI co-scientist for biomedical data analysis. These pages cover installation, deployment and operations. To run jobs without installing anything, use the live instance at [www.openscientist.io](https://www.openscientist.io). For contributing, see the [CONTRIBUTING](https://github.com/openscientist-io/openscientist/blob/main/CONTRIBUTING.md) and [CLAUDE.md](https://github.com/openscientist-io/openscientist/blob/main/CLAUDE.md) files in the [main repository](https://github.com/openscientist-io/openscientist).
 
 - Source: [github.com/openscientist-io/openscientist](https://github.com/openscientist-io/openscientist)
-- Production: [openscientist.io](https://openscientist.io)
+- Live site: [www.openscientist.io](https://www.openscientist.io)
 - API: [REST API reference](api.md)
