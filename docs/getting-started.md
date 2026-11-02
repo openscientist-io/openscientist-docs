@@ -28,10 +28,11 @@ See [Configuration](#configuration) below for how to set up each provider.
 git clone https://github.com/openscientist-io/openscientist.git
 cd openscientist
 
-# First run starts a setup wizard (provider, credentials, air-gapped mode),
-# writes the .env files, then builds and starts the stack
+# First run starts a setup wizard, then builds and starts the stack
 uv run openscientist
 ```
+
+The wizard asks for your model provider and its credentials, air-gapped mode, the site address and admin emails, and checks the provider with a live call. It writes `.env`, `.env.db` and `.env.owner` and generates the secret key and database passwords, so there is nothing to edit by hand. Limits and resources are set afterwards in the admin [Settings panel](#admin-settings).
 
 Later runs start OpenScientist directly. Stop it with `uv run openscientist stop`, and re-run the wizard with `uv run openscientist setup`.
 
@@ -53,7 +54,7 @@ Open your browser to `http://localhost:8080`.
 
 ### Model Providers
 
-OpenScientist supports multiple model providers. Choose one and configure it in your `.env` file:
+The wizard writes these settings for you. The blocks below show what ends up in `.env` for each provider, for reference or for editing by hand.
 
 #### Option 1: Anthropic API
 
@@ -239,36 +240,20 @@ ANTHROPIC_BASE_URL=https://api.cborg.lbl.gov
 
 **Cost Tracking**: Real-time via CBORG API (`/key/info`, `/user/daily/activity`)
 
-### Budget Controls
+### Admin Settings
 
-Spending limits are optional. Set them in `.env` before the first start:
+Once OpenScientist is running, admins set limits and resources under **Admin → Settings**. Changes take effect without a restart.
 
-```bash
-# Per-job cost cap
-MAX_JOB_COST_USD=25
-# Total spend across all jobs
-MAX_PROJECT_SPEND_TOTAL_USD=1000
-# Spend in the last 24 hours
-MAX_PROJECT_SPEND_24H_USD=50
-# Warn (without blocking) above this 24-hour spend
-WARN_PROJECT_SPEND_24H_USD=40
-```
+| Group | Settings |
+| --- | --- |
+| Budget | Job cost limit, Project spend total, Project spend (24 h), Project spend warning (24 h); each in USD or no limit |
+| Containers | Agent and executor CPU, memory and timeout |
+| Jobs | Max file size, Max concurrent jobs (0 pauses new starts), Scheduler window (hours of each user's recent use that decide whose queued job starts next) |
+| Login | Session length (days) |
 
-These values are copied into the database on first start; after that, change them in the admin **Settings** panel (editing `.env` has no effect). Limits are checked when a job is created, when a queued job starts, on every iteration, and on chat turns and report regeneration. Spend and warnings appear on the admin **Billing** page.
+Budget limits are checked when a job is created, when a queued job starts, on every iteration, and on chat turns and report regeneration. Spend and warnings appear on the admin **Billing** page. When any limit is set, hosted models without a known price are refused, since their spend can't be tracked; local models (Ollama, vLLM, llama.cpp) are exempt.
 
-When any limit is set, hosted models without a known price are refused, since their spend can't be tracked. Local models (Ollama, vLLM, llama.cpp) are exempt.
-
-### Other Settings
-
-```bash
-# Dev mode: mock OAuth login, auto-reload (development only)
-OPENSCIENTIST_DEV_MODE=true
-
-# Maximum concurrent jobs (default: 1)
-OPENSCIENTIST_MAX_CONCURRENT_JOBS=1
-```
-
-Like the budget limits, concurrency (and container resources, upload size limit and session length) is seeded from `.env` on first start and managed in the admin **Settings** panel afterwards. Job data is stored in `./jobs`.
+The matching `.env` variables (for example `MAX_JOB_COST_USD`, `OPENSCIENTIST_MAX_CONCURRENT_JOBS`) only set the starting values on first start; after that the Settings panel is what counts.
 
 ## Next Steps
 

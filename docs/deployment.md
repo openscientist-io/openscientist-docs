@@ -146,7 +146,7 @@ docker cp ./jobs openscientist-openscientist-1:/app/
 
 ### Budget exceeded
 
-Check spend on the admin **Billing** page, and raise or clear the limits in the admin **Settings** panel. See [Budget Controls](getting-started.md#budget-controls).
+Check spend on the admin **Billing** page, and raise or clear the limits in the admin **Settings** panel. See [Admin Settings](getting-started.md#admin-settings).
 
 ### Job stuck in "running" state
 
@@ -201,7 +201,7 @@ Check spend on the admin **Billing** page, and raise or clear the limits in the 
 
 ### Scaling
 
-For multiple concurrent jobs, raise **Max concurrent jobs** in the admin Settings panel (default 1). `OPENSCIENTIST_MAX_CONCURRENT_JOBS` in `.env` only sets the initial value on first start.
+For multiple concurrent jobs, raise **Max concurrent jobs** under Admin → Settings (default 1); container CPU and memory are set there too. See [Admin Settings](getting-started.md#admin-settings).
 
 ### Monitoring and Alerting
 
