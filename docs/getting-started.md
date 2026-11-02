@@ -32,7 +32,7 @@ cd openscientist
 uv run openscientist
 ```
 
-The wizard asks for your model provider and its credentials, air-gapped mode, the site address and admin emails, and checks the provider with a live call. It writes `.env`, `.env.db` and `.env.owner` and generates the secret key and database passwords, so there is nothing to edit by hand. Limits and resources are set afterwards in the admin [Settings panel](#admin-settings).
+The wizard asks for your model provider and its credentials, air-gapped mode, the site address and admin emails, and checks the provider with a live call. It writes `.env`, `.env.db` and `.env.owner` and generates the secret key and database passwords, so there is nothing to edit by hand. For scripted installs, `uv run openscientist setup --answers answers.toml` takes every answer from a file instead of prompting; `--write-answers answers.toml` saves a run's answers (never the secrets) for reuse. Limits and resources are set afterwards in the admin [Settings panel](#admin-settings).
 
 Later runs start OpenScientist directly. Stop it with `uv run openscientist stop`, and re-run the wizard with `uv run openscientist setup`.
 
@@ -49,6 +49,8 @@ Open your browser to `http://localhost:8080`.
 3. Set maximum iterations (e.g., 10)
 4. Click "Start Discovery"
 5. Monitor progress and view results
+
+To share a finished job, use the job's share dialog to share it with named users, or switch on **Anyone signed in can view this job** to make it public. Public jobs are reached by link and stay out of other users' job lists; readers get everything except your uploaded input files. Each run records its environment (OpenScientist commit, agent harness and version, container), shown on the job page, in the report footer and as `provenance.json` in the artifacts zip.
 
 ## Configuration
 
@@ -252,7 +254,9 @@ Once OpenScientist is running, admins set limits and resources under **Admin →
 | Login | Session length (days) |
 | Security | Air-gap switch (see [Air-gapped mode](airgap.md)) |
 
-Budget limits are checked when a job is created, when a queued job starts, on every iteration, and on chat turns and report regeneration. Spend and warnings appear on the admin **Billing** page. When any limit is set, hosted models without a known price are refused, since their spend can't be tracked; local models (Ollama, vLLM, llama.cpp) are exempt.
+Budget limits are checked when a job is created, when a queued job starts, on every iteration, and on chat turns and report regeneration. A running job that hits a limit stops iterating, still writes its report from what it found, and is marked as stopped early with a note naming the limit. Spend and warnings appear on the admin **Billing** page. When any limit is set, hosted models without a known price are refused, since their spend can't be tracked; local models (Ollama, vLLM, llama.cpp) are exempt.
+
+Under **Admin → Users**, admins approve new users and can mark a user as **priority**: their queued jobs start ahead of others' at the next free slot (running jobs are never interrupted).
 
 The matching `.env` variables (for example `MAX_JOB_COST_USD`, `OPENSCIENTIST_MAX_CONCURRENT_JOBS`) only set the starting values on first start; after that the Settings panel is what counts.
 

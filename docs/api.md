@@ -95,7 +95,7 @@ if s["status"] == "completed":
 | `space_group` | string | none | Crystal space group |
 | `data_files` | file(s) | none | Multipart only; repeat the field for several files |
 
-Job `status` moves through `pending`, `queued`, `running`, `awaiting_feedback` (co-investigate mode only), `generating_report`, and ends in `completed`, `failed` or `cancelled`.
+Job `status` moves through `pending`, `queued`, `running`, `awaiting_feedback` (co-investigate mode only), `generating_report`, and ends in `completed`, `failed` or `cancelled`. A job stopped early by a budget limit ends `completed` with `stop_note` naming the limit. Job detail also returns `is_public` and `version_info` (the run's recorded environment).
 
 ## Endpoints
 
@@ -106,6 +106,7 @@ Job `status` moves through `pending`, `queued`, `running`, `awaiting_feedback` (
 | `GET` | `/jobs` | List your jobs; `status`, `limit` (max 1000), `offset` query parameters |
 | `GET` | `/jobs/{job_id}` | Job detail, including the result summary when finished |
 | `GET` | `/jobs/{job_id}/status` | Lightweight status for polling |
+| `PUT` | `/jobs/{job_id}/visibility` | Owner only: `{"is_public": true}` makes the job readable by anyone signed in, `false` makes it private again |
 | `POST` | `/jobs/{job_id}/cancel` | Cancel a pending, queued or running job (stops at the next iteration checkpoint) |
 | `GET` | `/jobs/{job_id}/report` | Final report as PDF (completed jobs only) |
 | `GET` | `/jobs/{job_id}/artifacts` | ZIP of plots, data files and reports |
