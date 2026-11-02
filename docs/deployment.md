@@ -9,24 +9,17 @@ This guide explains how to deploy OpenScientist using Docker.
 
 ## Quick Start
 
-### 1. Set up environment variables
+### 1. Configure, build and start
 
-Create a `.env` file in the project root:
-
-```bash
-cp .env.example .env
-# Edit .env with your provider credentials
-```
-
-### 2. Build and run with Docker Compose
+From the repository root:
 
 ```bash
-# Build and start
-make build
-make start
+uv run openscientist
 ```
 
-### 3. Access the web interface
+On first run a setup wizard writes `.env`, `.env.db` and `.env.owner`; then it builds the images and starts the stack. Later runs skip the wizard. Stop with `uv run openscientist stop`; re-run the wizard with `uv run openscientist setup`.
+
+### 2. Access the web interface
 
 Open your browser and navigate to:
 
@@ -224,7 +217,7 @@ docker compose exec openscientist python -c "from openscientist.cost_tracker imp
 
 ### Scaling
 
-For multiple concurrent jobs, raise `OPENSCIENTIST_MAX_CONCURRENT_JOBS` in `.env` (default 1).
+For multiple concurrent jobs, raise **Max concurrent jobs** in the admin Settings panel (default 1). `OPENSCIENTIST_MAX_CONCURRENT_JOBS` in `.env` only sets the initial value on first start.
 
 ### Monitoring and Alerting
 
@@ -240,25 +233,12 @@ Set up monitoring with Prometheus/Grafana:
 # Pull latest code
 git pull origin main
 
-# Rebuild and restart
-docker compose down
-docker compose build
-docker compose up -d
+# Rebuild the images and restart
+uv run openscientist stop
+uv run openscientist
 ```
 
-### Using Make Shortcuts
-
-```bash
-# Build and start (rebuild)
-make rebuild
-
-# Deploy to remote server (pulls latest code, rebuilds, restarts)
-make deploy                          # default host
-make deploy DEPLOY_HOST=myserver     # custom host
-```
-
-The remote server must have the repo cloned and a `.env` file configured
-(see `.env.example`).
+To update a remote server, run the same commands there over SSH.
 
 ## Uninstalling
 
