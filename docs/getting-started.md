@@ -107,7 +107,8 @@ OPENSCIENTIST_PROVIDER=vertex
 
 # Vertex AI configuration
 ANTHROPIC_VERTEX_PROJECT_ID=your-gcp-project
-GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json
+# Host path to the service-account key; Docker mounts it into the containers
+GCP_CREDENTIALS_FILE=/path/to/service-account.json
 CLOUD_ML_REGION=us-east5
 VERTEX_REGION_CLAUDE_4_5_SONNET=us-east5
 VERTEX_REGION_CLAUDE_4_5_HAIKU=us-east5
@@ -169,9 +170,12 @@ ANTHROPIC_DEFAULT_OPUS_MODEL=claude-opus-4-6
 
 # For cost tracking (optional):
 AZURE_SUBSCRIPTION_ID=your-subscription-id
+AZURE_TENANT_ID=your-tenant-id
+AZURE_CLIENT_ID=your-client-id
+AZURE_CLIENT_SECRET=your-client-secret
 ```
 
-**Cost Tracking**: Via Azure Cost Management API (implementation in progress)
+**Cost Tracking**: Via Azure Cost Management (1-3 day lag)
 
 **Setup Guide**: See [Claude Code Foundry docs](https://code.claude.com/docs/en/microsoft-foundry)
 
@@ -237,34 +241,34 @@ ANTHROPIC_BASE_URL=https://api.cborg.lbl.gov
 
 ### Budget Controls
 
-Set application-level budget limits (optional):
+Spending limits are optional. Set them in `.env` before the first start:
 
 ```bash
-# Maximum total spend across all jobs
+# Per-job cost cap
+MAX_JOB_COST_USD=25
+# Total spend across all jobs
 MAX_PROJECT_SPEND_TOTAL_USD=1000
-
-# Maximum spend in last 24 hours
+# Spend in the last 24 hours
 MAX_PROJECT_SPEND_24H_USD=50
+# Warn (without blocking) above this 24-hour spend
+WARN_PROJECT_SPEND_24H_USD=40
 ```
 
-Budget limits are checked before job creation. The web UI displays:
+These values are copied into the database on first start; after that, change them in the admin **Settings** panel (editing `.env` has no effect). Limits are checked when a job is created, when a queued job starts, on every iteration, and on chat turns and report regeneration. Spend and warnings appear on the admin **Billing** page.
 
-- Total project spend
-- Recent spend (last 24h)
-- Budget remaining (if provider supports it)
+When any limit is set, hosted models without a known price are refused, since their spend can't be tracked. Local models (Ollama, vLLM, llama.cpp) are exempt.
 
 ### Other Settings
 
 ```bash
-# Dev mode - enables mock OAuth login for development
+# Dev mode: mock OAuth login, auto-reload (development only)
 OPENSCIENTIST_DEV_MODE=true
 
 # Maximum concurrent jobs (default: 1)
 OPENSCIENTIST_MAX_CONCURRENT_JOBS=1
-
-# Directory for job data (default: jobs/)
-OPENSCIENTIST_JOBS_DIR=jobs
 ```
+
+Like the budget limits, concurrency (and container resources, upload size limit and session length) is seeded from `.env` on first start and managed in the admin **Settings** panel afterwards. Job data is stored in `./jobs`.
 
 ## Next Steps
 
