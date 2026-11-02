@@ -250,6 +250,7 @@ Once OpenScientist is running, admins set limits and resources under **Admin →
 | Containers | Agent and executor CPU, memory and timeout |
 | Jobs | Max file size, Max concurrent jobs (0 pauses new starts), Scheduler window (hours of each user's recent use that decide whose queued job starts next) |
 | Login | Session length (days) |
+| Security | Air-gap switch (see [Air-gapped mode](airgap.md)) |
 
 Budget limits are checked when a job is created, when a queued job starts, on every iteration, and on chat turns and report regeneration. Spend and warnings appear on the admin **Billing** page. When any limit is set, hosted models without a known price are refused, since their spend can't be tracked; local models (Ollama, vLLM, llama.cpp) are exempt.
 

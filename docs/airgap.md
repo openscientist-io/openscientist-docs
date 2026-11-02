@@ -16,7 +16,9 @@ Air-gapped mode is available on self-hosted installs only, not on www.openscient
     uv run openscientist setup
     ```
 
-    Or set it directly in `.env`:
+    On a running instance, an admin can instead flip the **Air-gap** switch under **Admin → Settings**; it applies to jobs started from then on.
+
+    To force it on so it can't be switched off in the panel, set it in `.env`:
 
     ```bash
     OPENSCIENTIST_AIRGAPPED=true
