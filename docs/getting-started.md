@@ -25,18 +25,17 @@ See [Configuration](#configuration) below for how to set up each provider.
 ## Installation
 
 ```bash
-# Clone the repository
 git clone https://github.com/openscientist-io/openscientist.git
 cd openscientist
 
-# Create .env file (copy from example and configure)
-cp .env.example .env
-# Edit .env with your provider credentials
-
-# Build and start
-make build
-make start
+# First run starts a setup wizard (provider, credentials, air-gapped mode),
+# writes the .env files, then builds and starts the stack
+uv run openscientist
 ```
+
+Later runs start OpenScientist directly. Stop it with `uv run openscientist stop`, and re-run the wizard with `uv run openscientist setup`.
+
+For sensitive data, see [Air-gapped mode](airgap.md).
 
 ## Access the UI
 
