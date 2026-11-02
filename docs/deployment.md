@@ -124,18 +124,6 @@ tar -xzf openscientist-jobs-backup-YYYYMMDD.tar.gz
 docker cp ./jobs openscientist-openscientist-1:/app/
 ```
 
-## Legacy Bootstrap (Filesystem -> DB)
-
-If you have pre-database jobs on disk, run:
-
-```bash
-docker compose exec openscientist python -m openscientist.job_manager bootstrap --jobs-dir /app/jobs --dry-run
-docker compose exec openscientist python -m openscientist.job_manager bootstrap --jobs-dir /app/jobs
-```
-
-Jobs with unresolved ownership are migrated as orphaned (`owner_id=NULL`) and
-can be assigned later from the admin UI.
-
 ## Troubleshooting
 
 ### Container won't start
@@ -150,20 +138,15 @@ can be assigned later from the admin UI.
    docker compose config
    ```
 
-3. Rebuild from scratch:
+3. Rebuild and restart (keeps job data):
    ```bash
-   docker compose down -v
-   docker compose build --no-cache
-   docker compose up -d
+   uv run openscientist stop
+   uv run openscientist
    ```
 
 ### Budget exceeded
 
-Check your budget:
-
-```bash
-docker compose exec openscientist python -c "from openscientist.cost_tracker import get_budget_info; print(get_budget_info())"
-```
+Check spend on the admin **Billing** page, and raise or clear the limits in the admin **Settings** panel. See [Budget Controls](getting-started.md#budget-controls).
 
 ### Job stuck in "running" state
 
@@ -177,9 +160,10 @@ docker compose exec openscientist python -c "from openscientist.cost_tracker imp
    cat jobs/<job_id>/claude_iterations.log
    ```
 
-3. Cancel the job:
+3. Cancel the job through the [REST API](api.md):
    ```bash
-   docker compose exec openscientist python -c "from openscientist.job_manager import JobManager; JobManager().cancel_job('<job_id>')"
+   curl -X POST -H "Authorization: Bearer $OPENSCIENTIST_API_KEY" \
+     http://localhost:8080/api/v1/jobs/<job_id>/cancel
    ```
 
 ## Production Deployment
