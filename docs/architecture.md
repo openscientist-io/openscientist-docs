@@ -25,7 +25,7 @@ flowchart LR
     user(["User<br/>browser or API client"]) --> web
 
     web["Web container<br/>UI, REST API, scheduler,<br/>execution broker"]
-    db[("PostgreSQL container")]
+    db[("PostgreSQL")]
     job["Job container<br/>one per job<br/>agent harness + tools MCP server"]
     exec["Executor container<br/>one per code run"]
 
@@ -41,10 +41,10 @@ flowchart LR
     job --> pubmed
 ```
 
-Each box is a separate Docker container.
+The web, job and executor boxes are separate Docker containers. PostgreSQL is a standard database service.
 
 - **Web container** (`openscientist` service). The web interface, the [REST API](api.md), the job scheduler and the admin pages. It also runs the *execution broker*, which starts executor containers on a job's behalf so that job containers never get the Docker socket.
-- **PostgreSQL container.** Jobs, users, the knowledge state, chat history, admin settings and spend. Each job container gets its own database login that can touch only its own job.
+- **PostgreSQL.** The database: jobs, users, the knowledge state, chat history, admin settings and spend. Each job container gets its own database login that can touch only its own job.
 - **Job container.** Each job runs in its own short-lived container built from the agent image. Inside it, an **agent harness** drives the model and calls OpenScientist's tools through an MCP server.
 - **Executor containers.** Each `execute_code` call runs in a fresh one-shot container with CPU, memory and time limits from the admin [Settings panel](getting-started.md#admin-settings).
 
