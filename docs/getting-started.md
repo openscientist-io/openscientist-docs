@@ -11,14 +11,14 @@ There are two ways to use OpenScientist:
 - Docker (for containerized deployment)
 - `uv` package manager
 - One of the following for model access:
-  - **Anthropic API**: an API key or a Claude subscription
-  - **OpenAI**: an API key or a ChatGPT login
-  - **Azure OpenAI**: an Azure OpenAI resource with a model deployment
-  - **Vertex AI**: GCP project with Vertex AI enabled
-  - **AWS Bedrock**: AWS account with Bedrock access
-  - **Azure AI Foundry**: Azure subscription with Foundry resource
-  - **Local models**: an Ollama, vLLM or llama.cpp server on your own hardware
-  - **CBORG** (LBNL staff only): API token from [CBORG](https://cborg.lbl.gov)
+    - **Anthropic API**: an API key or a Claude subscription
+    - **OpenAI**: an API key or a ChatGPT login
+    - **Azure OpenAI**: an Azure OpenAI resource with a model deployment
+    - **Vertex AI**: GCP project with Vertex AI enabled
+    - **AWS Bedrock**: AWS account with Bedrock access
+    - **Azure AI Foundry**: Azure subscription with Foundry resource
+    - **Local models**: an Ollama, vLLM or llama.cpp server on your own hardware
+    - **CBORG** (LBNL staff only): API token from [CBORG](https://cborg.lbl.gov)
 
 See [Configuration](#configuration) below for how to set up each provider.
 
