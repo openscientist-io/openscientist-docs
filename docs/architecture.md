@@ -22,18 +22,12 @@ It runs for a set number of iterations, deciding for itself what to investigate 
 
 ```mermaid
 flowchart LR
-    user([Scientist]) --> web
+    user(["User<br/>browser or API client"]) --> web
 
-    subgraph host[Docker host]
-        web["Web app<br/>NiceGUI UI, REST API,<br/>scheduler, execution broker"]
-        db[(PostgreSQL)]
-        subgraph job["Job container (one per job)"]
-            agent["Agent harness<br/>Claude Code, Codex or omp"]
-            tools["Tools MCP server"]
-            agent <--> tools
-        end
-        exec["Executor containers<br/>(one per code run)"]
-    end
+    web["Web container<br/>UI, REST API, scheduler,<br/>execution broker"]
+    db[("PostgreSQL container")]
+    job["Job container<br/>one per job<br/>agent harness + tools MCP server"]
+    exec["Executor container<br/>one per code run"]
 
     llm[["Model provider"]]
     pubmed[["PubMed"]]
@@ -41,14 +35,16 @@ flowchart LR
     web <--> db
     web -- launches --> job
     job <--> db
-    tools -- execute_code --> web
-    web -- runs --> exec
-    agent <--> llm
-    tools --> pubmed
+    job -- execute_code --> web
+    web -- runs code in --> exec
+    job <--> llm
+    job --> pubmed
 ```
 
-- **Web app** (`openscientist` service). The NiceGUI interface, the [REST API](api.md), the job scheduler and the admin pages. It also runs the *execution broker*, which starts executor containers on a job's behalf so that job containers never get the Docker socket.
-- **PostgreSQL.** Jobs, users, the knowledge state, chat history, admin settings and spend. Each job container gets its own database login that can touch only its own job.
+Each box is a separate Docker container.
+
+- **Web container** (`openscientist` service). The web interface, the [REST API](api.md), the job scheduler and the admin pages. It also runs the *execution broker*, which starts executor containers on a job's behalf so that job containers never get the Docker socket.
+- **PostgreSQL container.** Jobs, users, the knowledge state, chat history, admin settings and spend. Each job container gets its own database login that can touch only its own job.
 - **Job container.** Each job runs in its own short-lived container built from the agent image. Inside it, an **agent harness** drives the model and calls OpenScientist's tools through an MCP server.
 - **Executor containers.** Each `execute_code` call runs in a fresh one-shot container with CPU, memory and time limits from the admin [Settings panel](getting-started.md#admin-settings).
 

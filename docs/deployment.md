@@ -44,7 +44,7 @@ The Docker setup mounts the following directories:
 
 ### Ports
 
-- `8080`: Web interface (NiceGUI)
+- `8080`: Web interface
 
 ## Managing Jobs
 
