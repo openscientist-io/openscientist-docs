@@ -1,264 +1,128 @@
 # Architecture
 
-**Status:** Implemented
-**Last Updated:** December 2025
+## What OpenScientist does
 
----
+OpenScientist is an autonomous AI scientist. Given a research question and optional data files, it:
 
-## What is OpenScientist?
+1. Explores the data to understand its structure
+2. Searches PubMed for domain knowledge
+3. Generates and tests hypotheses by writing and running analysis code
+4. Records findings with supporting evidence and figures
+5. Writes a final report synthesizing what it found
 
-OpenScientist is an **autonomous AI scientist** that discovers mechanistic insights from scientific data through iterative hypothesis testing. Given a research question and optional data files, OpenScientist:
+It runs for a set number of iterations, deciding for itself what to investigate next. In **co-investigate mode** it pauses after each iteration for guidance from a scientist.
 
-1. Explores the data to understand its structure and patterns
-2. Searches scientific literature (PubMed) for domain knowledge
-3. Generates and tests hypotheses using statistical analysis
-4. Records findings with supporting evidence and visualizations
-5. Produces a final report synthesizing all discoveries
+## Design principles
 
-OpenScientist runs **autonomously for N iterations**, making its own decisions about what to investigate next. It can also operate in **coinvestigate mode**, pausing after each iteration to receive guidance from a human scientist.
+- **Domain-agnostic.** Nothing is hard-coded for one field. It has been used on genomics, proteomics, structural biology, metabolomics, general tabular data, and literature-only questions. Domain knowledge comes from [skills](#skills).
+- **Code-writing agent.** Instead of a fixed menu of statistical functions, the agent writes code for each analysis. It can invent analyses on the fly, and every line it runs is logged.
+- **Literature-grounded.** The agent searches PubMed to inform hypotheses and interpret results, and cites what it read.
 
----
+## Components
 
-## Core Design Philosophy
+```mermaid
+flowchart LR
+    user([Scientist]) --> web
 
-### Domain-Agnostic
+    subgraph host[Docker host]
+        web["Web app<br/>NiceGUI UI, REST API,<br/>scheduler, execution broker"]
+        db[(PostgreSQL)]
+        subgraph job["Job container (one per job)"]
+            agent["Agent harness<br/>Claude Code, Codex or omp"]
+            tools["Tools MCP server"]
+            agent <--> tools
+        end
+        exec["Executor containers<br/>(one per code run)"]
+    end
 
-OpenScientist is not tied to any specific scientific domain. It works with:
+    llm[["Model provider"]]
+    pubmed[["PubMed"]]
 
-- Genomics and transcriptomics
-- Proteomics
-- Structural biology (protein structures)
-- Metabolomics data
-- General tabular scientific data
-- Literature-only investigations (no data files required)
-
-Domain-specific knowledge is provided through a **skills system** rather than hard-coded logic.
-
-### Code-Writing Agent
-
-Rather than providing pre-defined statistical functions, OpenScientist writes Python code to analyze data. This gives it:
-
-- **Flexibility**: Can invent novel analyses on the fly
-- **Transparency**: All analysis code is logged and reproducible
-- **Autonomy**: Not limited to anticipated use cases
-
-### Literature-Grounded Discovery
-
-OpenScientist proactively searches PubMed to inform hypothesis generation and interpret results. Literature provides:
-
-- Mechanistic context for observations
-- Known pathways and regulatory relationships
-- Validation of unexpected findings
-
----
-
-## Technical Architecture
-
-### How It Works
-
-OpenScientist uses an **agentic coding assistant** as its reasoning engine. The current implementation uses Claude Code CLI in headless mode, though the architecture is designed to potentially support other agentic frameworks in the future.
-
-The orchestrator spawns the agent with:
-
-- A system prompt containing the research question and context
-- An MCP server providing scientific tools (code execution, PubMed search, etc.)
-- Access to domain-specific skills
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│  OpenScientist CONTAINER                                           │
-│                                                             │
-│  ┌─────────────────────┐    ┌─────────────────────────┐    │
-│  │   NiceGUI Web UI    │    │    Job Manager          │    │
-│  │   - Submit jobs     │───▶│    - Queue jobs         │    │
-│  │   - Monitor progress│    │    - Track status       │    │
-│  │   - View results    │    │    - Manage lifecycle   │    │
-│  └─────────────────────┘    └──────────┬──────────────┘    │
-│                                        │                    │
-│                                        ▼                    │
-│  ┌──────────────────────────────────────────────────────┐  │
-│  │   Orchestrator (per job)                              │  │
-│  │   - Spawns agentic coding assistant                   │  │
-│  │   - Runs N iterations of discovery                    │  │
-│  │   - Saves transcripts and provenance                  │  │
-│  │   - Handles coinvestigate mode feedback               │  │
-│  └──────────────────────────────────────────────────────┘  │
-│                         │                                   │
-│           ┌─────────────┴─────────────┐                    │
-│           ▼                           ▼                    │
-│  ┌─────────────────┐        ┌─────────────────────┐        │
-│  │  Agentic        │◀──────▶│  MCP Server         │        │
-│  │  Coding         │        │  - execute_code     │        │
-│  │  Assistant      │        │  - search_pubmed    │        │
-│  │                 │        │  - update_knowledge │        │
-│  │  Reasons about  │        │  - save_summary     │        │
-│  │  what to do     │        │  - phenix_tools*    │        │
-│  │  next           │        │                     │        │
-│  └─────────────────┘        └─────────────────────┘        │
-│                                        │                    │
-│                                        ▼                    │
-│  ┌──────────────────────────────────────────────────────┐  │
-│  │   Knowledge State (JSON)                              │  │
-│  │   - Findings with evidence                            │  │
-│  │   - Literature references                             │  │
-│  │   - Analysis log                                      │  │
-│  │   - Iteration summaries                               │  │
-│  └──────────────────────────────────────────────────────┘  │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+    web <--> db
+    web -- launches --> job
+    job <--> db
+    tools -- execute_code --> web
+    web -- runs --> exec
+    agent <--> llm
+    tools --> pubmed
 ```
 
-!!! note
-    The current implementation is built around Claude Code CLI and Anthropic's Claude models. Future versions will support other agentic frameworks.
+- **Web app** (`openscientist` service). The NiceGUI interface, the [REST API](api.md), the job scheduler and the admin pages. It also runs the *execution broker*, which starts executor containers on a job's behalf so that job containers never get the Docker socket.
+- **PostgreSQL.** Jobs, users, the knowledge state, chat history, admin settings and spend. Each job container gets its own database login that can touch only its own job.
+- **Job container.** Each job runs in its own short-lived container built from the agent image. Inside it, an **agent harness** drives the model and calls OpenScientist's tools through an MCP server.
+- **Executor containers.** Each `execute_code` call runs in a fresh one-shot container with CPU, memory and time limits from the admin [Settings panel](getting-started.md#admin-settings).
 
-### The Discovery Loop
+In [air-gapped mode](airgap.md), executors have no network at all, the job container sits behind a default-deny firewall that only allows the database, the broker and the model endpoint, and PubMed is served from a local mirror.
 
-Each job runs through multiple iterations:
+## Agent harnesses
 
+The harness is the agent loop that talks to the model and calls tools. OpenScientist supports three, chosen with `OPENSCIENTIST_HARNESS` (the setup wizard asks):
+
+| Harness | Drives |
+|---|---|
+| `claude_code` | Claude models (Anthropic, Vertex, Bedrock, Foundry, CBORG) |
+| `codex` | OpenAI models (OpenAI, Azure OpenAI) |
+| `omp` | Any provider, including local models (Ollama, vLLM, llama.cpp) |
+
+The default, `auto`, picks Claude Code for Claude providers, Codex for OpenAI providers and omp for everything else. See [Model Providers](getting-started.md#model-providers) for the providers themselves.
+
+## The discovery loop
+
+```mermaid
+flowchart TD
+    start([Job starts]) --> budget{Budget OK?}
+    budget -- yes --> iterate["Agent reads the knowledge state,<br/>decides what to investigate,<br/>runs code and searches literature,<br/>records findings and a summary"]
+    iterate --> more{More iterations?}
+    more -- "co-investigate mode" --> feedback["Wait for scientist feedback<br/>(continues after 15 minutes)"]
+    feedback --> budget
+    more -- "autonomous mode" --> budget
+    more -- no --> report([Write report])
+    budget -- "limit reached" --> report
 ```
-For each iteration (1 to N):
-    1. Agent receives current knowledge state + prompt
-    2. Agent decides what to investigate
-    3. Agent calls tools (execute code, search literature, etc.)
-    4. MCP server executes tools, returns results
-    5. Agent interprets results, records findings
-    6. Agent saves iteration summary
-    7. Orchestrator increments iteration, saves transcript
-    8. [Coinvestigate mode: wait for scientist feedback]
-```
 
-At completion, OpenScientist generates a final report synthesizing all findings.
+Before every iteration the job checks the budget limits; if one is reached it stops and still writes its report from what it found. The report is HTML and PDF, with figures and references.
 
----
+After a job finishes, you can **chat** with it: ask follow-up questions, and the agent can run more analyses with the same tools.
 
-## Key Features
+## Tools
 
-### Investigation Modes
-
-**Autonomous Mode** (default)
-
-- Runs all N iterations without human intervention
-- Suitable for overnight or background runs
-- Agent makes all decisions independently
-
-**Coinvestigate Mode**
-
-- Pauses after each iteration to await scientist input
-- Scientist can provide guidance, redirect focus, or ask questions
-- Auto-continues after 15 minutes if no feedback received
-- Enables human-AI collaborative discovery
-
-### Multi-Provider Support
-
-OpenScientist supports multiple LLM providers:
-
-| Provider | Use Case |
-|----------|----------|
-| **Vertex AI** | Google Cloud with budget controls |
-| **CBORG** | Lawrence Berkeley Lab's Claude API proxy |
-| **Bedrock** | AWS (work in progress) |
-
-Each provider has its own cost tracking and budget enforcement.
-
-### Skills System
-
-Skills are modular packages of domain expertise that guide the agent's reasoning:
-
-**Workflow Skills** (domain-agnostic):
-
-- `hypothesis-generation` - How to formulate testable hypotheses
-- `result-interpretation` - How to interpret statistical results
-- `prioritization` - How to decide what to investigate next
-- `stopping-criteria` - When to stop investigating
-
-**Domain Skills** (domain-specific):
-
-- `genomics` - Differential expression, single-cell and enrichment analysis
-- `metabolomics` - Pathway analysis, flux calculations
-- `data-science` - General statistical analysis
-- `phenix-tools-reference` - Structural biology with the Phenix suite
-- `berkeley-data-lakehouse` - Querying JGI and KBase data
-
-Skills come from two sources, configured as *skill sources* and synced into the database:
-
-- **OpenScientist built-in skills**: the workflow and domain skills above, in the [`skills/`](https://github.com/openscientist-io/openscientist/tree/main/skills) directory of the main repository.
-- **Scientific Agent Skills** from K-Dense: a large community library of scientific skills, [K-Dense-AI/scientific-agent-skills](https://github.com/K-Dense-AI/scientific-agent-skills).
-
-Administrators can add further Git repositories as skill sources through the Skills page or the [REST API](api.md) (`POST /skills/sources`).
-
-### MCP Tools
-
-The agent interacts with the scientific environment through MCP (Model Context Protocol) tools:
+The agent's tools, served by the `openscientist-tools` MCP server in the job container:
 
 | Tool | Purpose |
-|------|---------|
-| `execute_code` | Run Python code for data analysis |
-| `search_pubmed` | Search PubMed for relevant papers |
-| `update_knowledge_state` | Record a confirmed finding |
-| `save_iteration_summary` | Save summary of what was done |
-| `run_phenix_tool`* | Run Phenix structural biology tools |
-| `compare_structures`* | Compare protein structures |
+|---|---|
+| `execute_code` | Run Python (default), Rust or SPARQL in an executor container |
+| `search_pubmed` | Search PubMed (or the local mirror when air-gapped) |
+| `read_document` | Read an uploaded PDF, Word or Excel document |
+| `update_knowledge_state` | Record a finding with its evidence |
+| `add_hypothesis`, `update_hypothesis` | Track hypotheses and their status (when hypothesis tracking is on) |
+| `save_iteration_summary` | Summarize what the iteration did |
+| `set_job_title`, `set_status`, `set_consensus_answer` | Job bookkeeping |
+| `run_phenix_tool`, `compare_structures`, `parse_alphafold_confidence` | Structural biology, when Phenix is installed |
 
-\* Phenix tools require optional Phenix installation.
+## Skills
 
-### Provenance and Reproducibility
+Skills are packages of instructions that guide the agent's reasoning. They are synced into the database from *skill sources* (Git repositories):
 
-Every action is logged for reproducibility:
+- **Built-in skills** in the [`skills/`](https://github.com/openscientist-io/openscientist/tree/main/skills) directory:
+    - workflow: `hypothesis-generation`, `result-interpretation`, `prioritization`, `stopping-criteria`
+    - domain: `genomics`, `metabolomics`, `data-science`, `structural_biology`, `phenix-tools-reference`, `berkeley-data-lakehouse`
+- **Scientific Agent Skills** from K-Dense, a large community library: [K-Dense-AI/scientific-agent-skills](https://github.com/K-Dense-AI/scientific-agent-skills).
 
-- **Transcripts**: Full agent conversation for each iteration
-- **Analysis log**: All code executed with outputs
-- **Knowledge state**: Structured record of findings
-- **Visualizations**: All generated plots with metadata
+Admins can add more sources on the Skills page or through the [REST API](api.md) (`POST /skills/sources`).
 
----
+## Provenance
 
-## Web Interface
+Each run keeps:
 
-OpenScientist provides a NiceGUI-based web interface:
+- the full agent transcript for every iteration
+- every piece of code executed, with its output
+- the knowledge state: findings, evidence, hypotheses and literature
+- all generated figures
+- the run's environment (OpenScientist commit, harness and version, container), shown on the job page, in the report footer and as `provenance.json` in the artifacts zip
 
-- **Job submission**: Upload data, enter research question, configure parameters
-- **Progress monitoring**: Live status updates, iteration timeline
-- **Results viewing**: Findings, visualizations, literature reviewed
-- **Report download**: Final report as Markdown or PDF
-- **Cost tracking**: Provider-specific spend monitoring
+## Data formats
 
-The timeline view uses **progressive disclosure** - showing high-level summaries with expandable details for each iteration.
-
----
-
-## Supported Data Formats
-
-OpenScientist has been tested with various scientific file formats:
-
-| Category | Tested Formats |
-|----------|----------------|
-| Tabular | CSV, TSV, Excel (.xlsx), Parquet, JSON |
-| Structural | PDB, mmCIF |
-| Images | PNG, JPG, TIFF |
-| Sequence | FASTA |
-
-The agent is generally good at understanding data in many formats beyond those listed here. Data files are optional - OpenScientist can also run **literature-only investigations**.
-
----
-
-## Deployment
-
-OpenScientist runs as a Docker container, configured via environment
-variables. See [Deployment](deployment.md) for setup, operations, and
-production deployment details.
-
----
-
-## Future Directions
-
-- **Alternative agents**: Support for other agentic frameworks beyond Claude Code
-- **Swarm mode**: Multiple specialized agents working in parallel
-- **Interactive steering**: Real-time guidance during autonomous runs
-- **Experiment design**: Agent proposes follow-up experiments
-- **Multi-omics integration**: Combine multiple data types in one investigation
-- **Benchmark validation**: Evaluation against scientific discovery benchmarks
-
----
+Tested with CSV, TSV, Excel, Parquet and JSON; PDB and mmCIF; FASTA; and PNG, JPG and TIFF images. The agent can usually work out other formats too. Data files are optional: a job can be literature-only.
 
 ## References
 

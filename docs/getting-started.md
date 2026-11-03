@@ -11,8 +11,8 @@ There are two ways to use OpenScientist:
 - Docker (for containerized deployment)
 - `uv` package manager
 - One of the following for model access:
-    - **Anthropic API**: an API key or a Claude subscription
-    - **OpenAI**: an API key or a ChatGPT login
+    - **Anthropic API**: an API key (recommended), or a Claude subscription token for a personal, single-user setup
+    - **OpenAI**: an API key (recommended), or a ChatGPT login for a personal, single-user setup
     - **Azure OpenAI**: an Azure OpenAI resource with a model deployment
     - **Vertex AI**: GCP project with Vertex AI enabled
     - **AWS Bedrock**: AWS account with Bedrock access
@@ -72,6 +72,9 @@ ANTHROPIC_API_KEY=sk-ant-api03-your-key-here
 
 The simplest setup: one key, no cloud account. Runs on the Claude Code agent harness.
 
+!!! note
+    A Claude subscription is for one person. Use the subscription token only on an instance you alone use, and check [Anthropic's terms](https://www.anthropic.com/legal/consumer-terms); use an API key for shared instances.
+
 #### Option 2: OpenAI
 
 ```bash
@@ -85,6 +88,9 @@ OPENAI_API_KEY=sk-your-openai-key
 ```
 
 Runs on the Codex agent harness.
+
+!!! note
+    As with Claude, a ChatGPT login is a personal account. Use it only on an instance you alone use, and use an API key for shared instances.
 
 #### Option 3: Azure OpenAI
 
