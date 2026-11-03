@@ -69,16 +69,17 @@ The default, `auto`, picks Claude Code for Claude providers, Codex for OpenAI pr
 ## The discovery loop
 
 ```mermaid
-flowchart TD
-    start([Job starts]) --> budget{Budget OK?}
-    budget -- yes --> iterate["Agent reads the knowledge state,<br/>decides what to investigate,<br/>runs code and searches literature,<br/>records findings and a summary"]
-    iterate --> more{More iterations?}
-    more -- "co-investigate mode" --> feedback["Wait for scientist feedback<br/>(continues after 15 minutes)"]
-    feedback --> budget
-    more -- "autonomous mode" --> budget
+flowchart LR
+    start([Start]) --> check{Budget OK?}
+    check -- yes --> iter[Run one iteration]
+    iter --> fb[Scientist feedback<br/>co-investigate only]
+    fb --> more{More<br/>iterations?}
+    more -- yes --> check
     more -- no --> report([Write report])
-    budget -- "limit reached" --> report
+    check -- limit reached --> report
 ```
+
+In each iteration the agent reads the knowledge state, decides what to investigate, runs code and searches the literature, then records its findings and a summary. In co-investigate mode it then waits for feedback, continuing on its own after 15 minutes.
 
 Before every iteration the job checks the budget limits; if one is reached it stops and still writes its report from what it found. The report is HTML and PDF, with figures and references.
 
