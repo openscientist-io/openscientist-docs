@@ -17,7 +17,7 @@ From the repository root:
 uv run openscientist
 ```
 
-On first run a setup wizard writes `.env`, `.env.db` and `.env.owner`; then it builds the images and starts the stack. Later runs skip the wizard. Stop with `uv run openscientist stop`; re-run the wizard with `uv run openscientist setup`.
+On first run a setup wizard writes `.env`, `.env.db` and `.env.owner`, generating the database passwords and the master secret; then it builds the images and starts the stack. The web refuses to start if `OPENSCIENTIST_SECRET_KEY` is missing, still the `.env.example` placeholder, or shorter than 64 characters. Later runs skip the wizard. Stop with `uv run openscientist stop`; re-run the wizard with `uv run openscientist setup`.
 
 ### 2. Access the web interface
 
@@ -40,11 +40,20 @@ The Docker setup mounts the following directories:
 
 - `./jobs`: Persists discovery job data
 - `./data`: Stores uploaded data files
-- `./.env`: Environment variables (read-only)
+
+The web runs as a non-root user in the jobs group (gid 1001), so `./jobs` must be group-owned by gid 1001 with the setgid bit. On a fresh checkout:
+
+```bash
+chgrp 1001 ./jobs && chmod 2770 ./jobs
+```
 
 ### Ports
 
-- `8080`: Web interface
+- `8080`: Web interface, published on `127.0.0.1` by default; set `OPENSCIENTIST_BIND_ADDRESS` to publish it on another host address
+
+### Container launcher
+
+A separate `launcher` service is the only part of the stack with access to the Docker socket. The web asks it, over a unix socket, to start, stop and list job and executor containers; neither the web nor the job containers can reach Docker themselves. The launcher builds every container from one of two fixed templates, accepts only the image digests recorded at build time (in `.env.owner`) and resource values within the `LAUNCHER_*` bounds in `.env`, and only acts on containers it created. `uv run openscientist` builds the images and records their digests for you.
 
 ## Managing Jobs
 

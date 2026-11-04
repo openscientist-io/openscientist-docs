@@ -25,6 +25,7 @@ flowchart LR
     user(["User<br/>browser or API client"]) --> web
 
     web["Web container<br/>UI, REST API, scheduler,<br/>execution broker"]
+    launcher["Launcher container<br/>sole Docker access"]
     db[("PostgreSQL")]
     job["Job container<br/>one per job<br/>agent harness + tools MCP server"]
     exec["Executor container<br/>one per code run"]
@@ -33,17 +34,19 @@ flowchart LR
     pubmed[["PubMed"]]
 
     web <--> db
-    web -- launches --> job
+    web -- "start / stop" --> launcher
+    launcher -- launches --> job
+    launcher -- "runs code in" --> exec
     job <--> db
     job -- "execute_code<br/>(via broker)" --> web
-    web -- "starts, runs code,<br/>returns output" --> exec
     job <--> llm
     job --> pubmed
 ```
 
-The web, job and executor boxes are separate Docker containers. PostgreSQL is a standard database service.
+The web, launcher, job and executor boxes are separate Docker containers. PostgreSQL is a standard database service.
 
-- **Web container** (`openscientist` service). The web interface, the [REST API](api.md), the job scheduler and the admin pages. It also runs the *execution broker*. Job containers have no Docker access, so every `execute_code` call goes to the broker, which starts an executor container, runs the code and returns the output. A compromised agent therefore cannot use Docker to reach the host.
+- **Web container** (`openscientist` service). The web interface, the [REST API](api.md), the job scheduler and the admin pages. It also runs the *execution broker*: every `execute_code` call from a job goes to the broker, which has the launcher run the code in an executor container and returns the output.
+- **Launcher container.** The only component with access to the Docker socket. It starts job and executor containers from two fixed templates and pinned images, within resource bounds, and only acts on containers it created. Neither the web nor the job containers can reach Docker, so a compromised agent or web process cannot use Docker to take over the host.
 - **PostgreSQL.** The database: jobs, users, the knowledge state, chat history, admin settings and spend. Each job container gets its own database login that can touch only its own job.
 - **Job container.** Each job runs in its own short-lived container built from the agent image. Inside it, an **agent harness** drives the model and calls OpenScientist's tools through an MCP server.
 - **Executor containers.** Each `execute_code` call runs in a fresh one-shot container with CPU, memory and time limits from the admin [Settings panel](getting-started.md#admin-settings).
